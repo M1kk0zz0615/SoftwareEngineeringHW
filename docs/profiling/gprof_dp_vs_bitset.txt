@@ -1,0 +1,10 @@
+Flat profile:
+
+Each sample counts as 0.01 seconds.
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls   s/call   s/call  name    
+ 98.32      2.93     2.93        1     2.93     2.93  check_lcs_dp
+  1.68      2.98     0.05        1     0.05     0.05  frame_dummy
+  0.00      2.98     0.00        2     0.00     0.00  check_strip_blank
+  0.00      2.98     0.00        2     0.00     0.00  fileio_read_all
+  0.00      2.98     0.00        1     0.00     0.00  check_lcs
