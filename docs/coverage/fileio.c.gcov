@@ -1,0 +1,159 @@
+        -:    0:Source:fileio.c
+        -:    1:#include "fileio.h"
+        -:    2:#include "check.h"
+        -:    3:
+        -:    4:#include <stdio.h>
+        -:    5:#include <stdlib.h>
+        -:    6:
+function fileio_read_all called 21 returned 100% blocks executed 52%
+       21:    7:CkStatus fileio_read_all(const char *path, unsigned char **out, size_t *out_len)
+        -:    8:{
+       21:    9:    FILE *fp = NULL;
+       21:   10:    long size = 0;
+       21:   11:    unsigned char *buf = NULL;
+       21:   12:    size_t got = 0;
+        -:   13:
+       21:   14:    fp = fopen(path, "rb");
+call    0 returned 21
+       21:   15:    if (fp == NULL) {
+branch  0 taken 4 (fallthrough)
+branch  1 taken 17
+        4:   16:        fprintf(stderr, "错误：无法打开文件 %s\n", path);
+call    0 returned 4
+call    1 returned 4
+        4:   17:        return CK_ERR_OPEN;
+        -:   18:    }
+        -:   19:
+        -:   20:    /* 先跳到末尾问一下文件多大 */
+       17:   21:    if (fseek(fp, 0, SEEK_END) != 0) {
+call    0 returned 17
+branch  1 taken 0 (fallthrough)
+branch  2 taken 17
+    #####:   22:        fprintf(stderr, "错误：无法定位文件末尾 %s\n", path);
+call    0 never executed
+call    1 never executed
+    #####:   23:        fclose(fp);
+call    0 never executed
+    #####:   24:        return CK_ERR_READ;
+        -:   25:    }
+        -:   26:
+       17:   27:    size = ftell(fp);
+call    0 returned 17
+       17:   28:    if (size < 0) {
+branch  0 taken 0 (fallthrough)
+branch  1 taken 17
+    #####:   29:        fprintf(stderr, "错误：无法获取文件大小 %s\n", path);
+call    0 never executed
+call    1 never executed
+    #####:   30:        fclose(fp);
+call    0 never executed
+    #####:   31:        return CK_ERR_READ;
+        -:   32:    }
+        -:   33:
+       17:   34:    if ((unsigned long)size > (unsigned long)CK_MAX_FILE_BYTES) {
+branch  0 taken 1 (fallthrough)
+branch  1 taken 16
+        1:   35:        fprintf(stderr, "错误：文件 %s 过大（%ld 字节，上限 %lu 字节）\n",
+call    0 returned 1
+call    1 returned 1
+        -:   36:                path, size, (unsigned long)CK_MAX_FILE_BYTES);
+        1:   37:        fclose(fp);
+call    0 returned 1
+        1:   38:        return CK_ERR_TOO_BIG;
+        -:   39:    }
+        -:   40:
+       16:   41:    if (fseek(fp, 0, SEEK_SET) != 0) {
+call    0 returned 16
+branch  1 taken 0 (fallthrough)
+branch  2 taken 16
+    #####:   42:        fprintf(stderr, "错误：无法回到文件开头 %s\n", path);
+call    0 never executed
+call    1 never executed
+    #####:   43:        fclose(fp);
+call    0 never executed
+    #####:   44:        return CK_ERR_READ;
+        -:   45:    }
+        -:   46:
+        -:   47:    /* 多开 1 字节放 '\0'，空文件也能得到一个合法缓冲区 */
+       16:   48:    buf = (unsigned char *)malloc((size_t)size + 1u);
+       16:   49:    if (buf == NULL) {
+branch  0 taken 0 (fallthrough)
+branch  1 taken 16
+    #####:   50:        fprintf(stderr, "错误：内存分配失败（需要 %ld 字节）\n", size + 1);
+call    0 never executed
+call    1 never executed
+    #####:   51:        fclose(fp);
+call    0 never executed
+    #####:   52:        return CK_ERR_MEM;
+        -:   53:    }
+        -:   54:
+       16:   55:    got = fread(buf, 1, (size_t)size, fp);
+call    0 returned 16
+       16:   56:    if (got != (size_t)size) {
+branch  0 taken 0 (fallthrough)
+branch  1 taken 16
+    #####:   57:        fprintf(stderr, "错误：读取文件 %s 失败（预期 %ld 字节，实际 %lu 字节）\n",
+call    0 never executed
+call    1 never executed
+        -:   58:                path, size, (unsigned long)got);
+    #####:   59:        free(buf);
+    #####:   60:        fclose(fp);
+call    0 never executed
+    #####:   61:        return CK_ERR_READ;
+        -:   62:    }
+        -:   63:
+       16:   64:    buf[got] = '\0';
+       16:   65:    fclose(fp);
+call    0 returned 16
+        -:   66:
+       16:   67:    *out = buf;
+       16:   68:    *out_len = got;
+       16:   69:    return CK_OK;
+        -:   70:}
+        -:   71:
+function fileio_write_rate called 11 returned 100% blocks executed 61%
+       11:   72:CkStatus fileio_write_rate(const char *path, double rate)
+        -:   73:{
+       11:   74:    FILE *fp = NULL;
+        -:   75:
+        -:   76:    /*
+        -:   77:     * 用二进制模式写：文本模式在 Windows 上会把 '\n' 变成 "\r\n"，
+        -:   78:     * 答案文件就会多出一个字节，这里要求输出严格是 "0.82\n"。
+        -:   79:     */
+       11:   80:    fp = fopen(path, "wb");
+call    0 returned 11
+       11:   81:    if (fp == NULL) {
+branch  0 taken 2 (fallthrough)
+branch  1 taken 9
+        2:   82:        fprintf(stderr, "错误：无法写入答案文件 %s\n", path);
+call    0 returned 2
+call    1 returned 2
+        2:   83:        return CK_ERR_WRITE;
+        -:   84:    }
+        -:   85:
+        -:   86:    /* 小学算术：%.2f 会四舍五入到小数点后两位 */
+        9:   87:    if (fprintf(fp, "%.2f\n", rate) < 0) {
+call    0 returned 9
+branch  1 taken 0 (fallthrough)
+branch  2 taken 9
+    #####:   88:        fprintf(stderr, "错误：写入答案文件 %s 失败\n", path);
+call    0 never executed
+call    1 never executed
+    #####:   89:        fclose(fp);
+call    0 never executed
+    #####:   90:        return CK_ERR_WRITE;
+        -:   91:    }
+        -:   92:
+        -:   93:    /* fclose 才会真正把缓冲区刷盘，它的返回值不能忽略 */
+        9:   94:    if (fclose(fp) != 0) {
+call    0 returned 9
+branch  1 taken 0 (fallthrough)
+branch  2 taken 9
+    #####:   95:        fprintf(stderr, "错误：关闭答案文件 %s 失败，数据可能未写入\n", path);
+call    0 never executed
+call    1 never executed
+    #####:   96:        return CK_ERR_WRITE;
+        -:   97:    }
+        -:   98:
+        9:   99:    return CK_OK;
+        -:  100:}

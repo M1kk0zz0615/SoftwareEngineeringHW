@@ -1,0 +1,25 @@
+        -:    0:Source:common.c
+        -:    1:#include "common.h"
+        -:    2:
+function ck_status_text called 11 returned 100% blocks executed 100%
+       11:    3:const char *ck_status_text(CkStatus st)
+        -:    4:{
+       11:    5:    switch (st) {
+branch  0 taken 2
+branch  1 taken 1
+branch  2 taken 2
+branch  3 taken 1
+branch  4 taken 1
+branch  5 taken 2
+branch  6 taken 1
+branch  7 taken 1
+        2:    6:    case CK_OK:          return "成功";
+        1:    7:    case CK_ERR_ARG:     return "命令行参数个数不正确";
+        2:    8:    case CK_ERR_OPEN:    return "无法打开文件";
+        1:    9:    case CK_ERR_READ:    return "文件读取失败";
+        1:   10:    case CK_ERR_WRITE:   return "答案文件写入失败";
+        2:   11:    case CK_ERR_MEM:     return "内存分配失败";
+        1:   12:    case CK_ERR_TOO_BIG: return "文件过大，超出程序处理上限";
+        1:   13:    default:             return "未知错误";
+        -:   14:    }
+        -:   15:}

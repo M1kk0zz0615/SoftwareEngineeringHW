@@ -1,0 +1,136 @@
+        -:    0:Source:main.c
+        -:    1:/*
+        -:    2: * main.c —— 命令行入口
+        -:    3: *
+        -:    4: * 用法：
+        -:    5: *   main.exe <原文文件> <抄袭版论文文件> <答案文件>
+        -:    6: *
+        -:    7: * 本文件只负责「串流程」和「兜错误」，所有算法都在 check.c，
+        -:    8: * 所有文件操作都在 fileio.c。
+        -:    9: */
+        -:   10:#include "check.h"
+        -:   11:#include "fileio.h"
+        -:   12:
+        -:   13:#include <stdio.h>
+        -:   14:#include <stdlib.h>
+        -:   15:
+        -:   16:/* 各错误场景对应的进程退出码，方便测试脚本区分失败原因 */
+        -:   17:enum {
+        -:   18:    EXIT_OK          = 0,
+        -:   19:    EXIT_BAD_USAGE   = 2,
+        -:   20:    EXIT_READ_ORIG   = 3,
+        -:   21:    EXIT_READ_COPY   = 4,
+        -:   22:    EXIT_OUT_OF_MEM  = 5,
+        -:   23:    EXIT_COMPUTE     = 6,
+        -:   24:    EXIT_WRITE_ANS   = 7
+        -:   25:};
+        -:   26:
+function print_usage called 2 returned 100% blocks executed 100%
+        2:   27:static void print_usage(const char *prog)
+        -:   28:{
+        2:   29:    fprintf(stderr,
+call    0 returned 2
+call    1 returned 2
+        -:   30:            "用法：%s <原文文件> <抄袭版论文文件> <答案文件>\n"
+        -:   31:            "示例：%s C:\\tests\\orig.txt C:\\tests\\orig_add.txt C:\\tests\\ans.txt\n",
+        -:   32:            prog, prog);
+        2:   33:}
+        -:   34:
+function main called 10 returned 100% blocks executed 76%
+       10:   35:int main(int argc, char *argv[])
+        -:   36:{
+       10:   37:    unsigned char *orig_raw = NULL;
+       10:   38:    unsigned char *copy_raw = NULL;
+       10:   39:    unsigned char *orig = NULL;
+       10:   40:    unsigned char *copy = NULL;
+       10:   41:    size_t orig_raw_len = 0;
+       10:   42:    size_t copy_raw_len = 0;
+       10:   43:    size_t orig_len = 0;
+       10:   44:    size_t copy_len = 0;
+        -:   45:    CheckResult result;
+       10:   46:    CkStatus st = CK_OK;
+       10:   47:    int code = EXIT_OK;
+        -:   48:
+        -:   49:    /* 0. 参数个数：程序名 + 三个路径 */
+       10:   50:    if (argc != 4) {
+branch  0 taken 2 (fallthrough)
+branch  1 taken 8
+        2:   51:        print_usage(argv[0]);
+call    0 returned 2
+        2:   52:        return EXIT_BAD_USAGE;
+        -:   53:    }
+        -:   54:
+        -:   55:    /* 1. 读原文 */
+        8:   56:    st = fileio_read_all(argv[1], &orig_raw, &orig_raw_len);
+call    0 returned 8
+        8:   57:    if (st != CK_OK) {
+branch  0 taken 1 (fallthrough)
+branch  1 taken 7
+        1:   58:        code = EXIT_READ_ORIG;
+        1:   59:        goto cleanup;
+        -:   60:    }
+        -:   61:
+        -:   62:    /* 2. 读抄袭版 */
+        7:   63:    st = fileio_read_all(argv[2], &copy_raw, &copy_raw_len);
+call    0 returned 7
+        7:   64:    if (st != CK_OK) {
+branch  0 taken 1 (fallthrough)
+branch  1 taken 6
+        1:   65:        code = EXIT_READ_COPY;
+        1:   66:        goto cleanup;
+        -:   67:    }
+        -:   68:
+        -:   69:    /* 3. 去空白。分配失败要单独报，别和算法失败混在一起 */
+        6:   70:    orig = (unsigned char *)malloc(orig_raw_len + 1u);
+        6:   71:    copy = (unsigned char *)malloc(copy_raw_len + 1u);
+        6:   72:    if (orig == NULL || copy == NULL) {
+branch  0 taken 6 (fallthrough)
+branch  1 taken 0
+branch  2 taken 0 (fallthrough)
+branch  3 taken 6
+    #####:   73:        fprintf(stderr, "错误：内存分配失败\n");
+call    0 never executed
+call    1 never executed
+    #####:   74:        code = EXIT_OUT_OF_MEM;
+    #####:   75:        goto cleanup;
+        -:   76:    }
+        -:   77:
+        6:   78:    orig_len = check_strip_blank(orig_raw, orig_raw_len, orig);
+call    0 returned 6
+        6:   79:    copy_len = check_strip_blank(copy_raw, copy_raw_len, copy);
+call    0 returned 6
+        6:   80:    orig[orig_len] = '\0';
+        6:   81:    copy[copy_len] = '\0';
+        -:   82:
+        -:   83:    /* 4. 算重复率 */
+        6:   84:    st = check_similarity(orig, orig_len, copy, copy_len, &result);
+call    0 returned 6
+        6:   85:    if (st != CK_OK) {
+branch  0 taken 0 (fallthrough)
+branch  1 taken 6
+    #####:   86:        fprintf(stderr, "错误：%s\n", ck_status_text(st));
+call    0 never executed
+call    1 never executed
+call    2 never executed
+    #####:   87:        code = EXIT_COMPUTE;
+    #####:   88:        goto cleanup;
+        -:   89:    }
+        -:   90:
+        -:   91:    /* 5. 写答案 */
+        6:   92:    st = fileio_write_rate(argv[3], result.rate);
+call    0 returned 6
+        6:   93:    if (st != CK_OK) {
+branch  0 taken 5 (fallthrough)
+branch  1 taken 1
+        1:   94:        code = EXIT_WRITE_ANS;
+        1:   95:        goto cleanup;
+        -:   96:    }
+        -:   97:
+        5:   98:cleanup:
+        -:   99:    /* 所有出口都汇聚到这里，保证不泄漏 */
+        8:  100:    free(orig_raw);
+        8:  101:    free(copy_raw);
+        8:  102:    free(orig);
+        8:  103:    free(copy);
+        8:  104:    return code;
+        -:  105:}

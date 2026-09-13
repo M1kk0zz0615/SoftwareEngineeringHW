@@ -9,6 +9,8 @@
 *.gcno
 *.gcda
 *.gcov
+# 例外：docs/coverage/ 下的行级覆盖明细要入库，作为报告证据
+!docs/coverage/*.gcov
 
 # gprof 产物
 gmon.out
