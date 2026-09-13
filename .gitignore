@@ -1,0 +1,24 @@
+# 编译产物
+*.exe
+*.o
+*.obj
+*.dll
+*.a
+
+# 覆盖率产物
+*.gcno
+*.gcda
+*.gcov
+
+# gprof 产物
+gmon.out
+
+# 测试临时文件
+utest_tmp_*.txt
+
+# 编辑器 / 系统
+.vscode/
+.idea/
+*.swp
+Thumbs.db
+desktop.ini
