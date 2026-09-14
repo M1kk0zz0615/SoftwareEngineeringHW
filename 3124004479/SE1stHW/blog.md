@@ -1,6 +1,6 @@
 # 软工作业：论文查重（个人项目）
 
-> 作业仓库：`[https://github.com/M1kk0zz0615/3124004479](https://github.com/M1kk0zz0615/SoftwareEngineeringHW/tree/main/3124004479/SE1stHW)`
+> 作业仓库：`[https://github.com/M1kk0zz0615/SoftwareEngineeringHW/tree/main/3124004479/SE1stHW]`
 > 学号 3124004479，姓名 刘俊宁，课程 [计科24级78班 - 软件工程](https://edu.cnblogs.com/campus/gdgy/Class78-Grade2024-CS/)
 
 ---
