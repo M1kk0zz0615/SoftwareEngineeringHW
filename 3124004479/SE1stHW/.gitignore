@@ -1,0 +1,26 @@
+# 编译产物
+*.exe
+*.o
+*.obj
+*.dll
+*.a
+
+# 覆盖率产物
+*.gcno
+*.gcda
+*.gcov
+# 例外：docs/coverage/ 下的行级覆盖明细要入库，作为报告证据
+!docs/coverage/*.gcov
+
+# gprof 产物
+gmon.out
+
+# 测试临时文件
+utest_tmp_*.txt
+
+# 编辑器 / 系统
+.vscode/
+.idea/
+*.swp
+Thumbs.db
+desktop.ini

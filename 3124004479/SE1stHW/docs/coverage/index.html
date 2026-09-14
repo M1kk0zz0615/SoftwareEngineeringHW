@@ -1,0 +1,713 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8">
+<title>覆盖率报告</title>
+<style>
+body { font-family: "Segoe UI", "Microsoft YaHei", sans-serif; margin: 0; padding: 24px;
+       background: #f6f8fa; color: #24292f; }
+h1 { font-size: 20px; }
+h2 { font-size: 16px; margin-top: 28px; }
+table { border-collapse: collapse; width: 100%; background: #fff; margin-bottom: 8px; }
+th, td { border: 1px solid #d0d7de; padding: 6px 10px; text-align: left; font-size: 13px; }
+th { background: #eaeef2; }
+pre { background: #fff; border: 1px solid #d0d7de; border-radius: 6px;
+      padding: 12px; overflow-x: auto; font-size: 12px; line-height: 1.5;
+      font-family: Consolas, "Cascadia Mono", monospace; }
+.z { color: #b71c1c; font-weight: 600; }   /* 未执行 */
+.c { color: #1b5e20; }                     /* 已执行 */
+.n { color: #8b949e; }                     /* 非可执行 */
+.sum { background: #fff; border: 1px solid #d0d7de; border-radius: 6px; padding: 12px; }
+</style></head><body>
+<h1>单元测试覆盖率报告（gcov）</h1>
+<div class="sum"><table>
+<tr><th>文件</th><th>行覆盖</th><th>分支覆盖</th><th>分支至少执行一次</th></tr>
+<tr><td>check.c</td><td>93.98% of 133</td><td>100.00% of 76</td><td>92.11% of 76</td></tr>
+<tr><td>fileio.c</td><td>62.50% of 56</td><td>100.00% of 20</td><td>65.00% of 20</td></tr>
+<tr><td>common.c</td><td>100.00% of 10</td><td>100.00% of 8</td><td>100.00% of 8</td></tr>
+<tr><td>main.c</td><td>85.94% of 249</td><td>100.00% of 14</td><td>78.57% of 14</td></tr>
+</table></div>
+<h2>check.c</h2>
+<pre><span class="n">    0 Source:check.c</span>
+<span class="n">    1 #include &quot;check.h&quot;</span>
+<span class="n">    2 </span>
+<span class="n">    3 #include &lt;stdint.h&gt;</span>
+<span class="n">    4 #include &lt;stdlib.h&gt;</span>
+<span class="n">    5 </span>
+<span class="n">    6 /* ------------------------------------------------------------------ */</span>
+<span class="n">    7 /* 文本预处理                                                          */</span>
+<span class="n">    8 /* ------------------------------------------------------------------ */</span>
+<span class="n">    9 </span>
+<span class="n">function check_is_blank called 480304 returned 100% blocks executed 100%</span>
+<span class="c">   10 int check_is_blank(unsigned char c)</span>
+<span class="n">   11 {</span>
+<span class="c">   12     return c == &#x27; &#x27; || c == &#x27;\t&#x27; || c == &#x27;\n&#x27; ||</span>
+<span class="n">branch  0 taken 450788 (fallthrough)</span>
+<span class="n">branch  1 taken 3</span>
+<span class="n">branch  2 taken 445085 (fallthrough)</span>
+<span class="n">branch  3 taken 5703</span>
+<span class="n">branch  4 taken 445083 (fallthrough)</span>
+<span class="n">branch  5 taken 2</span>
+<span class="c">   13            c == &#x27;\r&#x27; || c == &#x27;\f&#x27; || c == &#x27;\v&#x27;;</span>
+<span class="n">branch  0 taken 450791 (fallthrough)</span>
+<span class="n">branch  1 taken 29513</span>
+<span class="n">branch  2 taken 445082 (fallthrough)</span>
+<span class="n">branch  3 taken 1</span>
+<span class="n">branch  4 taken 1 (fallthrough)</span>
+<span class="n">branch  5 taken 445081</span>
+<span class="n">   14 }</span>
+<span class="n">   15 </span>
+<span class="n">function check_strip_blank called 48 returned 100% blocks executed 100%</span>
+<span class="c">   16 size_t check_strip_blank(const unsigned char *src, size_t len, unsigned char *dst)</span>
+<span class="n">   17 {</span>
+<span class="c">   18     unsigned char *out = dst;</span>
+<span class="c">   19     size_t i = 0;</span>
+<span class="n">   20 </span>
+<span class="c">   21     for (i = 0; i &lt; len; i++) {</span>
+<span class="n">branch  0 taken 480296</span>
+<span class="n">branch  1 taken 48 (fallthrough)</span>
+<span class="c">   22         unsigned char c = src[i];</span>
+<span class="n">   23 </span>
+<span class="c">   24         if (!check_is_blank(c)) {</span>
+<span class="n">call    0 returned 480296</span>
+<span class="n">branch  1 taken 445079 (fallthrough)</span>
+<span class="n">branch  2 taken 35217</span>
+<span class="c">   25             *out = c;</span>
+<span class="c">   26             out++;</span>
+<span class="n">   27         }</span>
+<span class="n">   28     }</span>
+<span class="c">   29     return (size_t)(out - dst);</span>
+<span class="n">   30 }</span>
+<span class="n">   31 </span>
+<span class="n">   32 /* ------------------------------------------------------------------ */</span>
+<span class="n">   33 /* 参照实现：经典动态规划 LCS                                          */</span>
+<span class="n">   34 /* ------------------------------------------------------------------ */</span>
+<span class="n">   35 </span>
+<span class="n">function check_lcs_dp called 2006 returned 100% blocks executed 95%</span>
+<span class="c">   36 size_t check_lcs_dp(const unsigned char *a, size_t m, const unsigned char *b, size_t n)</span>
+<span class="n">   37 {</span>
+<span class="c">   38     size_t result = 0;</span>
+<span class="c">   39     size_t *prev = NULL;</span>
+<span class="c">   40     size_t *curr = NULL;</span>
+<span class="n">   41 </span>
+<span class="c">   42     if (m == 0 || n == 0) {</span>
+<span class="n">branch  0 taken 1998 (fallthrough)</span>
+<span class="n">branch  1 taken 8</span>
+<span class="n">branch  2 taken 16 (fallthrough)</span>
+<span class="n">branch  3 taken 1982</span>
+<span class="c">   43         return 0;</span>
+<span class="n">   44     }</span>
+<span class="n">   45 </span>
+<span class="n">   46     /* 滚动数组按较长的那条串分配，空间 O(min(m,n)) */</span>
+<span class="c">   47     if (m &gt; n) {</span>
+<span class="n">branch  0 taken 971 (fallthrough)</span>
+<span class="n">branch  1 taken 1011</span>
+<span class="c">   48         const unsigned char *tc = a;</span>
+<span class="c">   49         size_t tl = m;</span>
+<span class="c">   50         a = b;</span>
+<span class="c">   51         m = n;</span>
+<span class="c">   52         b = tc;</span>
+<span class="c">   53         n = tl;</span>
+<span class="n">   54     }</span>
+<span class="n">   55 </span>
+<span class="c">   56     prev = (size_t *)calloc(n + 1, sizeof(size_t));</span>
+<span class="c">   57     curr = (size_t *)calloc(n + 1, sizeof(size_t));</span>
+<span class="c">   58     if (prev == NULL || curr == NULL) {</span>
+<span class="n">branch  0 taken 1982 (fallthrough)</span>
+<span class="n">branch  1 taken 0</span>
+<span class="n">branch  2 taken 0 (fallthrough)</span>
+<span class="n">branch  3 taken 1982</span>
+<span class="z">   59         free(prev);   // 未执行</span>
+<span class="z">   60         free(curr);   // 未执行</span>
+<span class="z">   61         return SIZE_MAX;   // 未执行</span>
+<span class="n">   62     }</span>
+<span class="n">   63 </span>
+<span class="c">   64     for (size_t i = 1; i &lt;= m; i++) {</span>
+<span class="n">branch  0 taken 80965</span>
+<span class="n">branch  1 taken 1982 (fallthrough)</span>
+<span class="c">   65         for (size_t j = 1; j &lt;= n; j++) {</span>
+<span class="n">branch  0 taken 7230693</span>
+<span class="n">branch  1 taken 80965 (fallthrough)</span>
+<span class="c">   66             if (a[i - 1] == b[j - 1]) {</span>
+<span class="n">branch  0 taken 1794534 (fallthrough)</span>
+<span class="n">branch  1 taken 5436159</span>
+<span class="n">   67                 /* 末尾字符相同：接在两者都去掉末尾的那一格后面 */</span>
+<span class="c">   68                 curr[j] = prev[j - 1] + 1;</span>
+<span class="n">   69             } else {</span>
+<span class="n">   70                 /* 否则取「丢掉 a 末尾」和「丢掉 b 末尾」中较大的那个 */</span>
+<span class="c">   71                 curr[j] = (prev[j] &gt; curr[j - 1]) ? prev[j] : curr[j - 1];</span>
+<span class="n">   72             }</span>
+<span class="n">   73         }</span>
+<span class="n">   74         /* 交换两行，prev 始终指向上一行 */</span>
+<span class="n">   75         {</span>
+<span class="c">   76             size_t *t = prev;</span>
+<span class="c">   77             prev = curr;</span>
+<span class="c">   78             curr = t;</span>
+<span class="n">   79         }</span>
+<span class="n">   80     }</span>
+<span class="n">   81 </span>
+<span class="c">   82     result = prev[n];</span>
+<span class="c">   83     free(prev);</span>
+<span class="c">   84     free(curr);</span>
+<span class="c">   85     return result;</span>
+<span class="n">   86 }</span>
+<span class="n">   87 </span>
+<span class="n">   88 /* ------------------------------------------------------------------ */</span>
+<span class="n">   89 /* 生产实现：位并行 LCS（Crochemore 等人的位向量算法）                 */</span>
+<span class="n">   90 /* ------------------------------------------------------------------ */</span>
+<span class="n">   91 </span>
+<span class="n">   92 /* 一个位向量需要多少个 64 位字 */</span>
+<span class="n">function bitset_words called 1995 returned 100% blocks executed 100%</span>
+<span class="c">   93 static size_t bitset_words(size_t bits)</span>
+<span class="n">   94 {</span>
+<span class="c">   95     return (bits + 63u) / 64u;</span>
+<span class="n">   96 }</span>
+<span class="n">   97 </span>
+<span class="n">function check_lcs called 2019 returned 100% blocks executed 94%</span>
+<span class="c">   98 size_t check_lcs(const unsigned char *a, size_t m, const unsigned char *b, size_t n)</span>
+<span class="n">   99 {</span>
+<span class="c">  100     size_t w = 0;              /* 位向量的字数 */</span>
+<span class="c">  101     size_t i = 0;</span>
+<span class="c">  102     size_t j = 0;</span>
+<span class="c">  103     size_t k = 0;</span>
+<span class="c">  104     size_t ones = 0;</span>
+<span class="c">  105     uint64_t top = 0;          /* 最高位所在的字里，有效位的掩码 */</span>
+<span class="c">  106     uint64_t *mask = NULL;     /* 字符 → 该字符在 A 中出现位置的位图 */</span>
+<span class="c">  107     uint64_t *s = NULL;        /* 位向量 S */</span>
+<span class="n">  108 </span>
+<span class="c">  109     if (m == 0 || n == 0) {</span>
+<span class="n">branch  0 taken 2011 (fallthrough)</span>
+<span class="n">branch  1 taken 8</span>
+<span class="n">branch  2 taken 16 (fallthrough)</span>
+<span class="n">branch  3 taken 1995</span>
+<span class="c">  110         return 0;</span>
+<span class="n">  111     }</span>
+<span class="n">  112 </span>
+<span class="n">  113     /* 位向量建在较短的那条串上：字数更少，时间不变但内存更省 */</span>
+<span class="c">  114     if (m &gt; n) {</span>
+<span class="n">branch  0 taken 972 (fallthrough)</span>
+<span class="n">branch  1 taken 1023</span>
+<span class="c">  115         const unsigned char *tc = a;</span>
+<span class="c">  116         size_t tl = m;</span>
+<span class="c">  117         a = b;</span>
+<span class="c">  118         m = n;</span>
+<span class="c">  119         b = tc;</span>
+<span class="c">  120         n = tl;</span>
+<span class="n">  121     }</span>
+<span class="n">  122 </span>
+<span class="c">  123     w = bitset_words(m);</span>
+<span class="n">call    0 returned 1995</span>
+<span class="c">  124     if (w &gt; SIZE_MAX / 256u / sizeof(uint64_t)) {</span>
+<span class="n">branch  0 taken 0 (fallthrough)</span>
+<span class="n">branch  1 taken 1995</span>
+<span class="z">  125         return SIZE_MAX;   /* 长度大到乘法会溢出，直接放弃 */   // 未执行</span>
+<span class="n">  126     }</span>
+<span class="n">  127 </span>
+<span class="c">  128     mask = (uint64_t *)calloc(256u * w, sizeof(uint64_t));</span>
+<span class="c">  129     s = (uint64_t *)malloc(w * sizeof(uint64_t));</span>
+<span class="c">  130     if (mask == NULL || s == NULL) {</span>
+<span class="n">branch  0 taken 1995 (fallthrough)</span>
+<span class="n">branch  1 taken 0</span>
+<span class="n">branch  2 taken 0 (fallthrough)</span>
+<span class="n">branch  3 taken 1995</span>
+<span class="z">  131         free(mask);   // 未执行</span>
+<span class="z">  132         free(s);   // 未执行</span>
+<span class="z">  133         return SIZE_MAX;   // 未执行</span>
+<span class="n">  134     }</span>
+<span class="n">  135 </span>
+<span class="n">  136     /* 建表：mask[c] 的第 i 位为 1 当且仅当 a[i] == c */</span>
+<span class="c">  137     for (i = 0; i &lt; m; i++) {</span>
+<span class="n">branch  0 taken 200374</span>
+<span class="n">branch  1 taken 1995 (fallthrough)</span>
+<span class="c">  138         uint64_t *row = mask + (size_t)a[i] * w;</span>
+<span class="c">  139         row[i &gt;&gt; 6] |= (uint64_t)1 &lt;&lt; (i &amp; 63u);</span>
+<span class="n">  140     }</span>
+<span class="n">  141 </span>
+<span class="n">  142     /* S 初始全 1（只保留低 m 位有效） */</span>
+<span class="c">  143     for (k = 0; k &lt; w; k++) {</span>
+<span class="n">branch  0 taken 4311</span>
+<span class="n">branch  1 taken 1995 (fallthrough)</span>
+<span class="c">  144         s[k] = ~(uint64_t)0;</span>
+<span class="n">  145     }</span>
+<span class="c">  146     top = ((m &amp; 63u) != 0u) ? (((uint64_t)1 &lt;&lt; (m &amp; 63u)) - 1u) : ~(uint64_t)0;</span>
+<span class="n">branch  0 taken 1981 (fallthrough)</span>
+<span class="n">branch  1 taken 14</span>
+<span class="c">  147     s[w - 1] = top;</span>
+<span class="n">  148 </span>
+<span class="n">  149     /*</span>
+<span class="n">  150      * 逐字符扫描 B。每轮做一次「无分支」的三件事：</span>
+<span class="n">  151      *   X   = S &amp; mask[b[j]]      —— 本轮能匹配上的位置</span>
+<span class="n">  152      *   S+X —— 进位传播，等价于把匹配点整体上移一格</span>
+<span class="n">  153      *   S-X —— 借位传播，等价于把不匹配的洞补上</span>
+<span class="n">  154      *   S   = (S+X) | (S-X)</span>
+<span class="n">  155      * 全部位运算，没有逐位分支，所以是 O(m/64) 而不是 O(m)。</span>
+<span class="n">  156      */</span>
+<span class="c">  157     for (j = 0; j &lt; n; j++) {</span>
+<span class="n">branch  0 taken 401206</span>
+<span class="n">branch  1 taken 1995 (fallthrough)</span>
+<span class="c">  158         const uint64_t *col = mask + (size_t)b[j] * w;</span>
+<span class="c">  159         uint64_t carry = 0;</span>
+<span class="c">  160         uint64_t borrow = 0;</span>
+<span class="n">  161 </span>
+<span class="c">  162         for (k = 0; k &lt; w; k++) {</span>
+<span class="n">branch  0 taken 107460176</span>
+<span class="n">branch  1 taken 401206 (fallthrough)</span>
+<span class="c">  163             uint64_t sk = s[k];</span>
+<span class="c">  164             uint64_t xk = sk &amp; col[k];</span>
+<span class="n">  165 </span>
+<span class="n">  166             /* 一次加法最多产生一次进位，两次比较不会同时成立，故用 + 合成一位 */</span>
+<span class="c">  167             uint64_t t  = sk + xk;</span>
+<span class="c">  168             uint64_t ta = t + carry;</span>
+<span class="c">  169             carry = (uint64_t)((t &lt; sk) + (ta &lt; t));</span>
+<span class="n">  170 </span>
+<span class="n">  171             /* 减法同理，一次借位 */</span>
+<span class="c">  172             uint64_t d  = sk - xk;</span>
+<span class="c">  173             uint64_t ds = d - borrow;</span>
+<span class="c">  174             borrow = (uint64_t)((sk &lt; xk) + (d &lt; borrow));</span>
+<span class="n">  175 </span>
+<span class="c">  176             s[k] = ta | ds;</span>
+<span class="n">  177         }</span>
+<span class="n">  178 </span>
+<span class="n">  179         /* 砍掉溢出到 m 位以上的部分 */</span>
+<span class="c">  180         s[w - 1] &amp;= top;</span>
+<span class="n">  181     }</span>
+<span class="n">  182 </span>
+<span class="n">  183     /* S 中 0 的个数就是两个串的最长公共子序列长度 */</span>
+<span class="c">  184     for (k = 0; k &lt; w; k++) {</span>
+<span class="n">branch  0 taken 4311</span>
+<span class="n">branch  1 taken 1995 (fallthrough)</span>
+<span class="c">  185         ones += (size_t)__builtin_popcountll(s[k]);</span>
+<span class="n">  186     }</span>
+<span class="n">  187 </span>
+<span class="c">  188     free(mask);</span>
+<span class="c">  189     free(s);</span>
+<span class="c">  190     return m - ones;</span>
+<span class="n">  191 }</span>
+<span class="n">  192 </span>
+<span class="n">  193 /* ------------------------------------------------------------------ */</span>
+<span class="n">  194 /* 对外接口：算重复率                                                  */</span>
+<span class="n">  195 /* ------------------------------------------------------------------ */</span>
+<span class="n">  196 </span>
+<span class="n">  197 /*</span>
+<span class="n">  198  * 裁掉两串公共的前缀与后缀。</span>
+<span class="n">  199  * a、b 会被更新为中间部分的起点，m、n 更新为中间部分的长度。</span>
+<span class="n">  200  * 返回被裁掉的总字节数。</span>
+<span class="n">  201  *</span>
+<span class="n">  202  * 这一步很值钱：真实的抄袭文本往往是大段照抄，公共前后缀能一口气吃掉</span>
+<span class="n">  203  * 绝大部分内容，剩下的中间部分才需要真正跑 O(m*n/64) 的 LCS。</span>
+<span class="n">  204  */</span>
+<span class="n">function trim_common_affix called 22 returned 100% blocks executed 100%</span>
+<span class="c">  205 static size_t trim_common_affix(const unsigned char **a, size_t *m,</span>
+<span class="n">  206                                 const unsigned char **b, size_t *n)</span>
+<span class="n">  207 {</span>
+<span class="c">  208     size_t prefix = 0;</span>
+<span class="c">  209     size_t suffix = 0;</span>
+<span class="n">  210 </span>
+<span class="c">  211     while (prefix &lt; *m &amp;&amp; prefix &lt; *n &amp;&amp; (*a)[prefix] == (*b)[prefix]) {</span>
+<span class="n">branch  0 taken 28760 (fallthrough)</span>
+<span class="n">branch  1 taken 8</span>
+<span class="n">branch  2 taken 28758 (fallthrough)</span>
+<span class="n">branch  3 taken 2</span>
+<span class="n">branch  4 taken 28746</span>
+<span class="n">branch  5 taken 12 (fallthrough)</span>
+<span class="c">  212         prefix++;</span>
+<span class="n">  213     }</span>
+<span class="n">  214 </span>
+<span class="n">  215     /*</span>
+<span class="n">  216      * 后缀不能越过前缀已经占用的部分。</span>
+<span class="n">  217      * cppcheck 的取值流分析会误判下面这个条件恒为假——它假定 prefix 已经吃满</span>
+<span class="n">  218      * 整串（*m - prefix == 0），但 prefix 只是「公共前缀」的长度，完全可能为 0。</span>
+<span class="n">  219      * 该分支不是死代码，由单元测试「用例12 公共内容夹在中间」实际覆盖。</span>
+<span class="n">  220      */</span>
+<span class="n">  221     /* cppcheck-suppress knownConditionTrueFalse */</span>
+<span class="c">  222     while (suffix &lt; (*m - prefix) &amp;&amp; suffix &lt; (*n - prefix) &amp;&amp;</span>
+<span class="n">branch  0 taken 33 (fallthrough)</span>
+<span class="n">branch  1 taken 8</span>
+<span class="n">branch  2 taken 31 (fallthrough)</span>
+<span class="n">branch  3 taken 2</span>
+<span class="c">  223            (*a)[*m - 1 - suffix] == (*b)[*n - 1 - suffix]) {</span>
+<span class="n">branch  0 taken 19</span>
+<span class="n">branch  1 taken 12 (fallthrough)</span>
+<span class="c">  224         suffix++;</span>
+<span class="n">  225     }</span>
+<span class="n">  226 </span>
+<span class="c">  227     *a += prefix;</span>
+<span class="c">  228     *m -= prefix + suffix;</span>
+<span class="c">  229     *b += prefix;</span>
+<span class="c">  230     *n -= prefix + suffix;</span>
+<span class="c">  231     return prefix + suffix;</span>
+<span class="n">  232 }</span>
+<span class="n">  233 </span>
+<span class="n">function check_similarity called 24 returned 100% blocks executed 92%</span>
+<span class="c">  234 CkStatus check_similarity(const unsigned char *orig, size_t orig_len,</span>
+<span class="n">  235                           const unsigned char *copy, size_t copy_len,</span>
+<span class="n">  236                           CheckResult *result)</span>
+<span class="n">  237 {</span>
+<span class="c">  238     const unsigned char *pa = orig;</span>
+<span class="c">  239     const unsigned char *pb = copy;</span>
+<span class="c">  240     size_t ma = orig_len;</span>
+<span class="c">  241     size_t nb = copy_len;</span>
+<span class="c">  242     size_t common = 0;</span>
+<span class="n">  243 </span>
+<span class="c">  244     result-&gt;orig_len = orig_len;</span>
+<span class="c">  245     result-&gt;copy_len = copy_len;</span>
+<span class="c">  246     result-&gt;common_len = 0;</span>
+<span class="c">  247     result-&gt;rate = 0.0;</span>
+<span class="n">  248 </span>
+<span class="n">  249     /* 原文为空：没有内容可被抄袭，约定重复率为 0，顺带避免除零 */</span>
+<span class="c">  250     if (orig_len == 0) {</span>
+<span class="n">branch  0 taken 2 (fallthrough)</span>
+<span class="n">branch  1 taken 22</span>
+<span class="c">  251         return CK_OK;</span>
+<span class="n">  252     }</span>
+<span class="n">  253 </span>
+<span class="n">  254     /* 第一步：裁掉公共前后缀，把待算的规模压小 */</span>
+<span class="c">  255     common = trim_common_affix(&amp;pa, &amp;ma, &amp;pb, &amp;nb);</span>
+<span class="n">call    0 returned 22</span>
+<span class="n">  256 </span>
+<span class="n">  257     /* 第二步：只剩中间那段时才真正跑 LCS */</span>
+<span class="c">  258     if (ma &gt; 0 &amp;&amp; nb &gt; 0) {</span>
+<span class="n">branch  0 taken 14 (fallthrough)</span>
+<span class="n">branch  1 taken 8</span>
+<span class="n">branch  2 taken 12 (fallthrough)</span>
+<span class="n">branch  3 taken 2</span>
+<span class="c">  259         size_t mid = check_lcs(pa, ma, pb, nb);</span>
+<span class="n">call    0 returned 12</span>
+<span class="n">  260 </span>
+<span class="c">  261         if (mid == SIZE_MAX) {</span>
+<span class="n">branch  0 taken 0 (fallthrough)</span>
+<span class="n">branch  1 taken 12</span>
+<span class="z">  262             return CK_ERR_MEM;   // 未执行</span>
+<span class="n">  263         }</span>
+<span class="c">  264         common += mid;</span>
+<span class="n">  265     }</span>
+<span class="n">  266 </span>
+<span class="c">  267     result-&gt;common_len = common;</span>
+<span class="c">  268     result-&gt;rate = (double)common / (double)orig_len;</span>
+<span class="c">  269     return CK_OK;</span>
+<span class="n">  270 }</span></pre>
+
+<h2>common.c</h2>
+<pre><span class="n">    0 Source:common.c</span>
+<span class="n">    1 #include &quot;common.h&quot;</span>
+<span class="n">    2 </span>
+<span class="n">function ck_status_text called 11 returned 100% blocks executed 100%</span>
+<span class="c">    3 const char *ck_status_text(CkStatus st)</span>
+<span class="n">    4 {</span>
+<span class="c">    5     switch (st) {</span>
+<span class="n">branch  0 taken 2</span>
+<span class="n">branch  1 taken 1</span>
+<span class="n">branch  2 taken 2</span>
+<span class="n">branch  3 taken 1</span>
+<span class="n">branch  4 taken 1</span>
+<span class="n">branch  5 taken 2</span>
+<span class="n">branch  6 taken 1</span>
+<span class="n">branch  7 taken 1</span>
+<span class="c">    6     case CK_OK:          return &quot;成功&quot;;</span>
+<span class="c">    7     case CK_ERR_ARG:     return &quot;命令行参数个数不正确&quot;;</span>
+<span class="c">    8     case CK_ERR_OPEN:    return &quot;无法打开文件&quot;;</span>
+<span class="c">    9     case CK_ERR_READ:    return &quot;文件读取失败&quot;;</span>
+<span class="c">   10     case CK_ERR_WRITE:   return &quot;答案文件写入失败&quot;;</span>
+<span class="c">   11     case CK_ERR_MEM:     return &quot;内存分配失败&quot;;</span>
+<span class="c">   12     case CK_ERR_TOO_BIG: return &quot;文件过大，超出程序处理上限&quot;;</span>
+<span class="c">   13     default:             return &quot;未知错误&quot;;</span>
+<span class="n">   14     }</span>
+<span class="n">   15 }</span></pre>
+
+<h2>fileio.c</h2>
+<pre><span class="n">    0 Source:fileio.c</span>
+<span class="n">    1 #include &quot;fileio.h&quot;</span>
+<span class="n">    2 #include &quot;check.h&quot;</span>
+<span class="n">    3 </span>
+<span class="n">    4 #include &lt;stdio.h&gt;</span>
+<span class="n">    5 #include &lt;stdlib.h&gt;</span>
+<span class="n">    6 </span>
+<span class="n">function fileio_read_all called 21 returned 100% blocks executed 52%</span>
+<span class="c">    7 CkStatus fileio_read_all(const char *path, unsigned char **out, size_t *out_len)</span>
+<span class="n">    8 {</span>
+<span class="c">    9     FILE *fp = NULL;</span>
+<span class="c">   10     long size = 0;</span>
+<span class="c">   11     unsigned char *buf = NULL;</span>
+<span class="c">   12     size_t got = 0;</span>
+<span class="n">   13 </span>
+<span class="c">   14     fp = fopen(path, &quot;rb&quot;);</span>
+<span class="n">call    0 returned 21</span>
+<span class="c">   15     if (fp == NULL) {</span>
+<span class="n">branch  0 taken 4 (fallthrough)</span>
+<span class="n">branch  1 taken 17</span>
+<span class="c">   16         fprintf(stderr, &quot;错误：无法打开文件 %s\n&quot;, path);</span>
+<span class="n">call    0 returned 4</span>
+<span class="n">call    1 returned 4</span>
+<span class="c">   17         return CK_ERR_OPEN;</span>
+<span class="n">   18     }</span>
+<span class="n">   19 </span>
+<span class="n">   20     /* 先跳到末尾问一下文件多大 */</span>
+<span class="c">   21     if (fseek(fp, 0, SEEK_END) != 0) {</span>
+<span class="n">call    0 returned 17</span>
+<span class="n">branch  1 taken 0 (fallthrough)</span>
+<span class="n">branch  2 taken 17</span>
+<span class="z">   22         fprintf(stderr, &quot;错误：无法定位文件末尾 %s\n&quot;, path);   // 未执行</span>
+<span class="n">call    0 never executed</span>
+<span class="n">call    1 never executed</span>
+<span class="z">   23         fclose(fp);   // 未执行</span>
+<span class="n">call    0 never executed</span>
+<span class="z">   24         return CK_ERR_READ;   // 未执行</span>
+<span class="n">   25     }</span>
+<span class="n">   26 </span>
+<span class="c">   27     size = ftell(fp);</span>
+<span class="n">call    0 returned 17</span>
+<span class="c">   28     if (size &lt; 0) {</span>
+<span class="n">branch  0 taken 0 (fallthrough)</span>
+<span class="n">branch  1 taken 17</span>
+<span class="z">   29         fprintf(stderr, &quot;错误：无法获取文件大小 %s\n&quot;, path);   // 未执行</span>
+<span class="n">call    0 never executed</span>
+<span class="n">call    1 never executed</span>
+<span class="z">   30         fclose(fp);   // 未执行</span>
+<span class="n">call    0 never executed</span>
+<span class="z">   31         return CK_ERR_READ;   // 未执行</span>
+<span class="n">   32     }</span>
+<span class="n">   33 </span>
+<span class="c">   34     if ((unsigned long)size &gt; (unsigned long)CK_MAX_FILE_BYTES) {</span>
+<span class="n">branch  0 taken 1 (fallthrough)</span>
+<span class="n">branch  1 taken 16</span>
+<span class="c">   35         fprintf(stderr, &quot;错误：文件 %s 过大（%ld 字节，上限 %lu 字节）\n&quot;,</span>
+<span class="n">call    0 returned 1</span>
+<span class="n">call    1 returned 1</span>
+<span class="n">   36                 path, size, (unsigned long)CK_MAX_FILE_BYTES);</span>
+<span class="c">   37         fclose(fp);</span>
+<span class="n">call    0 returned 1</span>
+<span class="c">   38         return CK_ERR_TOO_BIG;</span>
+<span class="n">   39     }</span>
+<span class="n">   40 </span>
+<span class="c">   41     if (fseek(fp, 0, SEEK_SET) != 0) {</span>
+<span class="n">call    0 returned 16</span>
+<span class="n">branch  1 taken 0 (fallthrough)</span>
+<span class="n">branch  2 taken 16</span>
+<span class="z">   42         fprintf(stderr, &quot;错误：无法回到文件开头 %s\n&quot;, path);   // 未执行</span>
+<span class="n">call    0 never executed</span>
+<span class="n">call    1 never executed</span>
+<span class="z">   43         fclose(fp);   // 未执行</span>
+<span class="n">call    0 never executed</span>
+<span class="z">   44         return CK_ERR_READ;   // 未执行</span>
+<span class="n">   45     }</span>
+<span class="n">   46 </span>
+<span class="n">   47     /* 多开 1 字节放 &#x27;\0&#x27;，空文件也能得到一个合法缓冲区 */</span>
+<span class="c">   48     buf = (unsigned char *)malloc((size_t)size + 1u);</span>
+<span class="c">   49     if (buf == NULL) {</span>
+<span class="n">branch  0 taken 0 (fallthrough)</span>
+<span class="n">branch  1 taken 16</span>
+<span class="z">   50         fprintf(stderr, &quot;错误：内存分配失败（需要 %ld 字节）\n&quot;, size + 1);   // 未执行</span>
+<span class="n">call    0 never executed</span>
+<span class="n">call    1 never executed</span>
+<span class="z">   51         fclose(fp);   // 未执行</span>
+<span class="n">call    0 never executed</span>
+<span class="z">   52         return CK_ERR_MEM;   // 未执行</span>
+<span class="n">   53     }</span>
+<span class="n">   54 </span>
+<span class="c">   55     got = fread(buf, 1, (size_t)size, fp);</span>
+<span class="n">call    0 returned 16</span>
+<span class="c">   56     if (got != (size_t)size) {</span>
+<span class="n">branch  0 taken 0 (fallthrough)</span>
+<span class="n">branch  1 taken 16</span>
+<span class="z">   57         fprintf(stderr, &quot;错误：读取文件 %s 失败（预期 %ld 字节，实际 %lu 字节）\n&quot;,   // 未执行</span>
+<span class="n">call    0 never executed</span>
+<span class="n">call    1 never executed</span>
+<span class="n">   58                 path, size, (unsigned long)got);</span>
+<span class="z">   59         free(buf);   // 未执行</span>
+<span class="z">   60         fclose(fp);   // 未执行</span>
+<span class="n">call    0 never executed</span>
+<span class="z">   61         return CK_ERR_READ;   // 未执行</span>
+<span class="n">   62     }</span>
+<span class="n">   63 </span>
+<span class="c">   64     buf[got] = &#x27;\0&#x27;;</span>
+<span class="c">   65     fclose(fp);</span>
+<span class="n">call    0 returned 16</span>
+<span class="n">   66 </span>
+<span class="c">   67     *out = buf;</span>
+<span class="c">   68     *out_len = got;</span>
+<span class="c">   69     return CK_OK;</span>
+<span class="n">   70 }</span>
+<span class="n">   71 </span>
+<span class="n">function fileio_write_rate called 11 returned 100% blocks executed 61%</span>
+<span class="c">   72 CkStatus fileio_write_rate(const char *path, double rate)</span>
+<span class="n">   73 {</span>
+<span class="c">   74     FILE *fp = NULL;</span>
+<span class="n">   75 </span>
+<span class="n">   76     /*</span>
+<span class="n">   77      * 用二进制模式写：文本模式在 Windows 上会把 &#x27;\n&#x27; 变成 &quot;\r\n&quot;，</span>
+<span class="n">   78      * 答案文件就会多出一个字节，这里要求输出严格是 &quot;0.82\n&quot;。</span>
+<span class="n">   79      */</span>
+<span class="c">   80     fp = fopen(path, &quot;wb&quot;);</span>
+<span class="n">call    0 returned 11</span>
+<span class="c">   81     if (fp == NULL) {</span>
+<span class="n">branch  0 taken 2 (fallthrough)</span>
+<span class="n">branch  1 taken 9</span>
+<span class="c">   82         fprintf(stderr, &quot;错误：无法写入答案文件 %s\n&quot;, path);</span>
+<span class="n">call    0 returned 2</span>
+<span class="n">call    1 returned 2</span>
+<span class="c">   83         return CK_ERR_WRITE;</span>
+<span class="n">   84     }</span>
+<span class="n">   85 </span>
+<span class="n">   86     /* 小学算术：%.2f 会四舍五入到小数点后两位 */</span>
+<span class="c">   87     if (fprintf(fp, &quot;%.2f\n&quot;, rate) &lt; 0) {</span>
+<span class="n">call    0 returned 9</span>
+<span class="n">branch  1 taken 0 (fallthrough)</span>
+<span class="n">branch  2 taken 9</span>
+<span class="z">   88         fprintf(stderr, &quot;错误：写入答案文件 %s 失败\n&quot;, path);   // 未执行</span>
+<span class="n">call    0 never executed</span>
+<span class="n">call    1 never executed</span>
+<span class="z">   89         fclose(fp);   // 未执行</span>
+<span class="n">call    0 never executed</span>
+<span class="z">   90         return CK_ERR_WRITE;   // 未执行</span>
+<span class="n">   91     }</span>
+<span class="n">   92 </span>
+<span class="n">   93     /* fclose 才会真正把缓冲区刷盘，它的返回值不能忽略 */</span>
+<span class="c">   94     if (fclose(fp) != 0) {</span>
+<span class="n">call    0 returned 9</span>
+<span class="n">branch  1 taken 0 (fallthrough)</span>
+<span class="n">branch  2 taken 9</span>
+<span class="z">   95         fprintf(stderr, &quot;错误：关闭答案文件 %s 失败，数据可能未写入\n&quot;, path);   // 未执行</span>
+<span class="n">call    0 never executed</span>
+<span class="n">call    1 never executed</span>
+<span class="z">   96         return CK_ERR_WRITE;   // 未执行</span>
+<span class="n">   97     }</span>
+<span class="n">   98 </span>
+<span class="c">   99     return CK_OK;</span>
+<span class="n">  100 }</span></pre>
+
+<h2>main.c</h2>
+<pre><span class="n">    0 Source:main.c</span>
+<span class="n">    1 /*</span>
+<span class="n">    2  * main.c —— 命令行入口</span>
+<span class="n">    3  *</span>
+<span class="n">    4  * 用法：</span>
+<span class="n">    5  *   main.exe &lt;原文文件&gt; &lt;抄袭版论文文件&gt; &lt;答案文件&gt;</span>
+<span class="n">    6  *</span>
+<span class="n">    7  * 本文件只负责「串流程」和「兜错误」，所有算法都在 check.c，</span>
+<span class="n">    8  * 所有文件操作都在 fileio.c。</span>
+<span class="n">    9  */</span>
+<span class="n">   10 #include &quot;check.h&quot;</span>
+<span class="n">   11 #include &quot;fileio.h&quot;</span>
+<span class="n">   12 </span>
+<span class="n">   13 #include &lt;stdio.h&gt;</span>
+<span class="n">   14 #include &lt;stdlib.h&gt;</span>
+<span class="n">   15 </span>
+<span class="n">   16 /* 各错误场景对应的进程退出码，方便测试脚本区分失败原因 */</span>
+<span class="n">   17 enum {</span>
+<span class="n">   18     EXIT_OK          = 0,</span>
+<span class="n">   19     EXIT_BAD_USAGE   = 2,</span>
+<span class="n">   20     EXIT_READ_ORIG   = 3,</span>
+<span class="n">   21     EXIT_READ_COPY   = 4,</span>
+<span class="n">   22     EXIT_OUT_OF_MEM  = 5,</span>
+<span class="n">   23     EXIT_COMPUTE     = 6,</span>
+<span class="n">   24     EXIT_WRITE_ANS   = 7</span>
+<span class="n">   25 };</span>
+<span class="n">   26 </span>
+<span class="n">function print_usage called 2 returned 100% blocks executed 100%</span>
+<span class="c">   27 static void print_usage(const char *prog)</span>
+<span class="n">   28 {</span>
+<span class="c">   29     fprintf(stderr,</span>
+<span class="n">call    0 returned 2</span>
+<span class="n">call    1 returned 2</span>
+<span class="n">   30             &quot;用法：%s &lt;原文文件&gt; &lt;抄袭版论文文件&gt; &lt;答案文件&gt;\n&quot;</span>
+<span class="n">   31             &quot;示例：%s C:\\tests\\orig.txt C:\\tests\\orig_add.txt C:\\tests\\ans.txt\n&quot;,</span>
+<span class="n">   32             prog, prog);</span>
+<span class="c">   33 }</span>
+<span class="n">   34 </span>
+<span class="n">function main called 10 returned 100% blocks executed 76%</span>
+<span class="c">   35 int main(int argc, char *argv[])</span>
+<span class="n">   36 {</span>
+<span class="c">   37     unsigned char *orig_raw = NULL;</span>
+<span class="c">   38     unsigned char *copy_raw = NULL;</span>
+<span class="c">   39     unsigned char *orig = NULL;</span>
+<span class="c">   40     unsigned char *copy = NULL;</span>
+<span class="c">   41     size_t orig_raw_len = 0;</span>
+<span class="c">   42     size_t copy_raw_len = 0;</span>
+<span class="c">   43     size_t orig_len = 0;</span>
+<span class="c">   44     size_t copy_len = 0;</span>
+<span class="n">   45     CheckResult result;</span>
+<span class="c">   46     CkStatus st = CK_OK;</span>
+<span class="c">   47     int code = EXIT_OK;</span>
+<span class="n">   48 </span>
+<span class="n">   49     /* 0. 参数个数：程序名 + 三个路径 */</span>
+<span class="c">   50     if (argc != 4) {</span>
+<span class="n">branch  0 taken 2 (fallthrough)</span>
+<span class="n">branch  1 taken 8</span>
+<span class="c">   51         print_usage(argv[0]);</span>
+<span class="n">call    0 returned 2</span>
+<span class="c">   52         return EXIT_BAD_USAGE;</span>
+<span class="n">   53     }</span>
+<span class="n">   54 </span>
+<span class="n">   55     /* 1. 读原文 */</span>
+<span class="c">   56     st = fileio_read_all(argv[1], &amp;orig_raw, &amp;orig_raw_len);</span>
+<span class="n">call    0 returned 8</span>
+<span class="c">   57     if (st != CK_OK) {</span>
+<span class="n">branch  0 taken 1 (fallthrough)</span>
+<span class="n">branch  1 taken 7</span>
+<span class="c">   58         code = EXIT_READ_ORIG;</span>
+<span class="c">   59         goto cleanup;</span>
+<span class="n">   60     }</span>
+<span class="n">   61 </span>
+<span class="n">   62     /* 2. 读抄袭版 */</span>
+<span class="c">   63     st = fileio_read_all(argv[2], &amp;copy_raw, &amp;copy_raw_len);</span>
+<span class="n">call    0 returned 7</span>
+<span class="c">   64     if (st != CK_OK) {</span>
+<span class="n">branch  0 taken 1 (fallthrough)</span>
+<span class="n">branch  1 taken 6</span>
+<span class="c">   65         code = EXIT_READ_COPY;</span>
+<span class="c">   66         goto cleanup;</span>
+<span class="n">   67     }</span>
+<span class="n">   68 </span>
+<span class="n">   69     /* 3. 去空白。分配失败要单独报，别和算法失败混在一起 */</span>
+<span class="c">   70     orig = (unsigned char *)malloc(orig_raw_len + 1u);</span>
+<span class="c">   71     copy = (unsigned char *)malloc(copy_raw_len + 1u);</span>
+<span class="c">   72     if (orig == NULL || copy == NULL) {</span>
+<span class="n">branch  0 taken 6 (fallthrough)</span>
+<span class="n">branch  1 taken 0</span>
+<span class="n">branch  2 taken 0 (fallthrough)</span>
+<span class="n">branch  3 taken 6</span>
+<span class="z">   73         fprintf(stderr, &quot;错误：内存分配失败\n&quot;);   // 未执行</span>
+<span class="n">call    0 never executed</span>
+<span class="n">call    1 never executed</span>
+<span class="z">   74         code = EXIT_OUT_OF_MEM;   // 未执行</span>
+<span class="z">   75         goto cleanup;   // 未执行</span>
+<span class="n">   76     }</span>
+<span class="n">   77 </span>
+<span class="c">   78     orig_len = check_strip_blank(orig_raw, orig_raw_len, orig);</span>
+<span class="n">call    0 returned 6</span>
+<span class="c">   79     copy_len = check_strip_blank(copy_raw, copy_raw_len, copy);</span>
+<span class="n">call    0 returned 6</span>
+<span class="c">   80     orig[orig_len] = &#x27;\0&#x27;;</span>
+<span class="c">   81     copy[copy_len] = &#x27;\0&#x27;;</span>
+<span class="n">   82 </span>
+<span class="n">   83     /* 4. 算重复率 */</span>
+<span class="c">   84     st = check_similarity(orig, orig_len, copy, copy_len, &amp;result);</span>
+<span class="n">call    0 returned 6</span>
+<span class="c">   85     if (st != CK_OK) {</span>
+<span class="n">branch  0 taken 0 (fallthrough)</span>
+<span class="n">branch  1 taken 6</span>
+<span class="z">   86         fprintf(stderr, &quot;错误：%s\n&quot;, ck_status_text(st));   // 未执行</span>
+<span class="n">call    0 never executed</span>
+<span class="n">call    1 never executed</span>
+<span class="n">call    2 never executed</span>
+<span class="z">   87         code = EXIT_COMPUTE;   // 未执行</span>
+<span class="z">   88         goto cleanup;   // 未执行</span>
+<span class="n">   89     }</span>
+<span class="n">   90 </span>
+<span class="n">   91     /* 5. 写答案 */</span>
+<span class="c">   92     st = fileio_write_rate(argv[3], result.rate);</span>
+<span class="n">call    0 returned 6</span>
+<span class="c">   93     if (st != CK_OK) {</span>
+<span class="n">branch  0 taken 5 (fallthrough)</span>
+<span class="n">branch  1 taken 1</span>
+<span class="c">   94         code = EXIT_WRITE_ANS;</span>
+<span class="c">   95         goto cleanup;</span>
+<span class="n">   96     }</span>
+<span class="n">   97 </span>
+<span class="c">   98 cleanup:</span>
+<span class="n">   99     /* 所有出口都汇聚到这里，保证不泄漏 */</span>
+<span class="c">  100     free(orig_raw);</span>
+<span class="c">  101     free(copy_raw);</span>
+<span class="c">  102     free(orig);</span>
+<span class="c">  103     free(copy);</span>
+<span class="c">  104     return code;</span>
+<span class="n">  105 }</span></pre>
+
+</body></html>

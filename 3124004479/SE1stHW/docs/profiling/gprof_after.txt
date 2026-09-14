@@ -1,0 +1,10 @@
+Flat profile:
+
+Each sample counts as 0.01 seconds.
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls  ms/call  ms/call  name    
+100.00      0.04     0.04        1    40.00    40.00  frame_dummy
+  0.00      0.04     0.00        2     0.00     0.00  check_strip_blank
+  0.00      0.04     0.00        2     0.00     0.00  fileio_read_all
+  0.00      0.04     0.00        1     0.00    40.00  check_similarity
+  0.00      0.04     0.00        1     0.00     0.00  fileio_write_rate

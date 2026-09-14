@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="820" height="300" viewBox="0 0 820 300">
+  <style>
+    .t { font-family: "Segoe UI", "Microsoft YaHei", sans-serif; }
+    .title { font-size: 17px; font-weight: 600; fill: #24292f; }
+    .label { font-size: 13px; fill: #24292f; }
+    .val { font-size: 13px; font-weight: 600; fill: #24292f; }
+    .note { font-size: 12px; fill: #656d76; }
+    .axis { stroke: #d0d7de; stroke-width: 1; }
+  </style>
+
+  <text class="t title" x="20" y="32">LCS 耗时对比（同一对样例文件：orig.txt vs orig_0.8_del.txt）</text>
+  <text class="t note" x="20" y="52">待比较规模 28594 × 137507 ≈ 3.93 × 10⁹ 字节；数据来自 tests/bench.c，gprof 采样</text>
+
+  <!-- 优化前 -->
+  <text class="t label" x="20" y="95">优化前</text>
+  <text class="t label" x="20" y="113">经典动态规划</text>
+  <text class="t note" x="20" y="130">check_lcs_dp · O(m·n)</text>
+  <rect x="180" y="82" width="560" height="42" fill="#c62828" rx="3"/>
+  <text class="t val" x="752" y="109">2 930 ms</text>
+
+  <!-- 优化后 -->
+  <text class="t label" x="20" y="185">优化后</text>
+  <text class="t label" x="20" y="203">位并行</text>
+  <text class="t note" x="20" y="220">check_lcs · O(m·n/64)</text>
+  <rect x="180" y="172" width="9" height="42" fill="#2e7d32" rx="2"/>
+  <text class="t val" x="200" y="199" fill="#2e7d32">48 ms</text>
+
+  <!-- 轴 -->
+  <line class="axis" x1="180" y1="245" x2="740" y2="245"/>
+  <text class="t note" x="180" y="262">0</text>
+  <text class="t note" x="460" y="262">1 500 ms</text>
+  <text class="t note" x="720" y="262">3 000 ms</text>
+
+  <text class="t val" x="20" y="288" fill="#2e7d32">加速比 ≈ 61 倍；两套算法在上述样例上 LCS 均为 23 397，结果一致</text>
+</svg>

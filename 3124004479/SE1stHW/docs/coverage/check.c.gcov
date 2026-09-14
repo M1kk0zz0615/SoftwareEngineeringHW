@@ -1,0 +1,358 @@
+        -:    0:Source:check.c
+        -:    1:#include "check.h"
+        -:    2:
+        -:    3:#include <stdint.h>
+        -:    4:#include <stdlib.h>
+        -:    5:
+        -:    6:/* ------------------------------------------------------------------ */
+        -:    7:/* 文本预处理                                                          */
+        -:    8:/* ------------------------------------------------------------------ */
+        -:    9:
+function check_is_blank called 480304 returned 100% blocks executed 100%
+   480304:   10:int check_is_blank(unsigned char c)
+        -:   11:{
+   450791:   12:    return c == ' ' || c == '\t' || c == '\n' ||
+branch  0 taken 450788 (fallthrough)
+branch  1 taken 3
+branch  2 taken 445085 (fallthrough)
+branch  3 taken 5703
+branch  4 taken 445083 (fallthrough)
+branch  5 taken 2
+   931095:   13:           c == '\r' || c == '\f' || c == '\v';
+branch  0 taken 450791 (fallthrough)
+branch  1 taken 29513
+branch  2 taken 445082 (fallthrough)
+branch  3 taken 1
+branch  4 taken 1 (fallthrough)
+branch  5 taken 445081
+        -:   14:}
+        -:   15:
+function check_strip_blank called 48 returned 100% blocks executed 100%
+       48:   16:size_t check_strip_blank(const unsigned char *src, size_t len, unsigned char *dst)
+        -:   17:{
+       48:   18:    unsigned char *out = dst;
+       48:   19:    size_t i = 0;
+        -:   20:
+   480344:   21:    for (i = 0; i < len; i++) {
+branch  0 taken 480296
+branch  1 taken 48 (fallthrough)
+   480296:   22:        unsigned char c = src[i];
+        -:   23:
+   480296:   24:        if (!check_is_blank(c)) {
+call    0 returned 480296
+branch  1 taken 445079 (fallthrough)
+branch  2 taken 35217
+   445079:   25:            *out = c;
+   445079:   26:            out++;
+        -:   27:        }
+        -:   28:    }
+       48:   29:    return (size_t)(out - dst);
+        -:   30:}
+        -:   31:
+        -:   32:/* ------------------------------------------------------------------ */
+        -:   33:/* 参照实现：经典动态规划 LCS                                          */
+        -:   34:/* ------------------------------------------------------------------ */
+        -:   35:
+function check_lcs_dp called 2006 returned 100% blocks executed 95%
+     2006:   36:size_t check_lcs_dp(const unsigned char *a, size_t m, const unsigned char *b, size_t n)
+        -:   37:{
+     2006:   38:    size_t result = 0;
+     2006:   39:    size_t *prev = NULL;
+     2006:   40:    size_t *curr = NULL;
+        -:   41:
+     2006:   42:    if (m == 0 || n == 0) {
+branch  0 taken 1998 (fallthrough)
+branch  1 taken 8
+branch  2 taken 16 (fallthrough)
+branch  3 taken 1982
+       24:   43:        return 0;
+        -:   44:    }
+        -:   45:
+        -:   46:    /* 滚动数组按较长的那条串分配，空间 O(min(m,n)) */
+     1982:   47:    if (m > n) {
+branch  0 taken 971 (fallthrough)
+branch  1 taken 1011
+      971:   48:        const unsigned char *tc = a;
+      971:   49:        size_t tl = m;
+      971:   50:        a = b;
+      971:   51:        m = n;
+      971:   52:        b = tc;
+      971:   53:        n = tl;
+        -:   54:    }
+        -:   55:
+     1982:   56:    prev = (size_t *)calloc(n + 1, sizeof(size_t));
+     1982:   57:    curr = (size_t *)calloc(n + 1, sizeof(size_t));
+     1982:   58:    if (prev == NULL || curr == NULL) {
+branch  0 taken 1982 (fallthrough)
+branch  1 taken 0
+branch  2 taken 0 (fallthrough)
+branch  3 taken 1982
+    #####:   59:        free(prev);
+    #####:   60:        free(curr);
+    #####:   61:        return SIZE_MAX;
+        -:   62:    }
+        -:   63:
+    82947:   64:    for (size_t i = 1; i <= m; i++) {
+branch  0 taken 80965
+branch  1 taken 1982 (fallthrough)
+  7311658:   65:        for (size_t j = 1; j <= n; j++) {
+branch  0 taken 7230693
+branch  1 taken 80965 (fallthrough)
+  7230693:   66:            if (a[i - 1] == b[j - 1]) {
+branch  0 taken 1794534 (fallthrough)
+branch  1 taken 5436159
+        -:   67:                /* 末尾字符相同：接在两者都去掉末尾的那一格后面 */
+  1794534:   68:                curr[j] = prev[j - 1] + 1;
+        -:   69:            } else {
+        -:   70:                /* 否则取「丢掉 a 末尾」和「丢掉 b 末尾」中较大的那个 */
+  5436159:   71:                curr[j] = (prev[j] > curr[j - 1]) ? prev[j] : curr[j - 1];
+        -:   72:            }
+        -:   73:        }
+        -:   74:        /* 交换两行，prev 始终指向上一行 */
+        -:   75:        {
+    80965:   76:            size_t *t = prev;
+    80965:   77:            prev = curr;
+    80965:   78:            curr = t;
+        -:   79:        }
+        -:   80:    }
+        -:   81:
+     1982:   82:    result = prev[n];
+     1982:   83:    free(prev);
+     1982:   84:    free(curr);
+     1982:   85:    return result;
+        -:   86:}
+        -:   87:
+        -:   88:/* ------------------------------------------------------------------ */
+        -:   89:/* 生产实现：位并行 LCS（Crochemore 等人的位向量算法）                 */
+        -:   90:/* ------------------------------------------------------------------ */
+        -:   91:
+        -:   92:/* 一个位向量需要多少个 64 位字 */
+function bitset_words called 1995 returned 100% blocks executed 100%
+     1995:   93:static size_t bitset_words(size_t bits)
+        -:   94:{
+     1995:   95:    return (bits + 63u) / 64u;
+        -:   96:}
+        -:   97:
+function check_lcs called 2019 returned 100% blocks executed 94%
+     2019:   98:size_t check_lcs(const unsigned char *a, size_t m, const unsigned char *b, size_t n)
+        -:   99:{
+     2019:  100:    size_t w = 0;              /* 位向量的字数 */
+     2019:  101:    size_t i = 0;
+     2019:  102:    size_t j = 0;
+     2019:  103:    size_t k = 0;
+     2019:  104:    size_t ones = 0;
+     2019:  105:    uint64_t top = 0;          /* 最高位所在的字里，有效位的掩码 */
+     2019:  106:    uint64_t *mask = NULL;     /* 字符 → 该字符在 A 中出现位置的位图 */
+     2019:  107:    uint64_t *s = NULL;        /* 位向量 S */
+        -:  108:
+     2019:  109:    if (m == 0 || n == 0) {
+branch  0 taken 2011 (fallthrough)
+branch  1 taken 8
+branch  2 taken 16 (fallthrough)
+branch  3 taken 1995
+       24:  110:        return 0;
+        -:  111:    }
+        -:  112:
+        -:  113:    /* 位向量建在较短的那条串上：字数更少，时间不变但内存更省 */
+     1995:  114:    if (m > n) {
+branch  0 taken 972 (fallthrough)
+branch  1 taken 1023
+      972:  115:        const unsigned char *tc = a;
+      972:  116:        size_t tl = m;
+      972:  117:        a = b;
+      972:  118:        m = n;
+      972:  119:        b = tc;
+      972:  120:        n = tl;
+        -:  121:    }
+        -:  122:
+     1995:  123:    w = bitset_words(m);
+call    0 returned 1995
+     1995:  124:    if (w > SIZE_MAX / 256u / sizeof(uint64_t)) {
+branch  0 taken 0 (fallthrough)
+branch  1 taken 1995
+    #####:  125:        return SIZE_MAX;   /* 长度大到乘法会溢出，直接放弃 */
+        -:  126:    }
+        -:  127:
+     1995:  128:    mask = (uint64_t *)calloc(256u * w, sizeof(uint64_t));
+     1995:  129:    s = (uint64_t *)malloc(w * sizeof(uint64_t));
+     1995:  130:    if (mask == NULL || s == NULL) {
+branch  0 taken 1995 (fallthrough)
+branch  1 taken 0
+branch  2 taken 0 (fallthrough)
+branch  3 taken 1995
+    #####:  131:        free(mask);
+    #####:  132:        free(s);
+    #####:  133:        return SIZE_MAX;
+        -:  134:    }
+        -:  135:
+        -:  136:    /* 建表：mask[c] 的第 i 位为 1 当且仅当 a[i] == c */
+   202369:  137:    for (i = 0; i < m; i++) {
+branch  0 taken 200374
+branch  1 taken 1995 (fallthrough)
+   200374:  138:        uint64_t *row = mask + (size_t)a[i] * w;
+   200374:  139:        row[i >> 6] |= (uint64_t)1 << (i & 63u);
+        -:  140:    }
+        -:  141:
+        -:  142:    /* S 初始全 1（只保留低 m 位有效） */
+     6306:  143:    for (k = 0; k < w; k++) {
+branch  0 taken 4311
+branch  1 taken 1995 (fallthrough)
+     4311:  144:        s[k] = ~(uint64_t)0;
+        -:  145:    }
+     1995:  146:    top = ((m & 63u) != 0u) ? (((uint64_t)1 << (m & 63u)) - 1u) : ~(uint64_t)0;
+branch  0 taken 1981 (fallthrough)
+branch  1 taken 14
+     1995:  147:    s[w - 1] = top;
+        -:  148:
+        -:  149:    /*
+        -:  150:     * 逐字符扫描 B。每轮做一次「无分支」的三件事：
+        -:  151:     *   X   = S & mask[b[j]]      —— 本轮能匹配上的位置
+        -:  152:     *   S+X —— 进位传播，等价于把匹配点整体上移一格
+        -:  153:     *   S-X —— 借位传播，等价于把不匹配的洞补上
+        -:  154:     *   S   = (S+X) | (S-X)
+        -:  155:     * 全部位运算，没有逐位分支，所以是 O(m/64) 而不是 O(m)。
+        -:  156:     */
+   403201:  157:    for (j = 0; j < n; j++) {
+branch  0 taken 401206
+branch  1 taken 1995 (fallthrough)
+   401206:  158:        const uint64_t *col = mask + (size_t)b[j] * w;
+   401206:  159:        uint64_t carry = 0;
+   401206:  160:        uint64_t borrow = 0;
+        -:  161:
+107861382:  162:        for (k = 0; k < w; k++) {
+branch  0 taken 107460176
+branch  1 taken 401206 (fallthrough)
+107460176:  163:            uint64_t sk = s[k];
+107460176:  164:            uint64_t xk = sk & col[k];
+        -:  165:
+        -:  166:            /* 一次加法最多产生一次进位，两次比较不会同时成立，故用 + 合成一位 */
+107460176:  167:            uint64_t t  = sk + xk;
+107460176:  168:            uint64_t ta = t + carry;
+107460176:  169:            carry = (uint64_t)((t < sk) + (ta < t));
+        -:  170:
+        -:  171:            /* 减法同理，一次借位 */
+107460176:  172:            uint64_t d  = sk - xk;
+107460176:  173:            uint64_t ds = d - borrow;
+107460176:  174:            borrow = (uint64_t)((sk < xk) + (d < borrow));
+        -:  175:
+107460176:  176:            s[k] = ta | ds;
+        -:  177:        }
+        -:  178:
+        -:  179:        /* 砍掉溢出到 m 位以上的部分 */
+   401206:  180:        s[w - 1] &= top;
+        -:  181:    }
+        -:  182:
+        -:  183:    /* S 中 0 的个数就是两个串的最长公共子序列长度 */
+     6306:  184:    for (k = 0; k < w; k++) {
+branch  0 taken 4311
+branch  1 taken 1995 (fallthrough)
+     4311:  185:        ones += (size_t)__builtin_popcountll(s[k]);
+        -:  186:    }
+        -:  187:
+     1995:  188:    free(mask);
+     1995:  189:    free(s);
+     1995:  190:    return m - ones;
+        -:  191:}
+        -:  192:
+        -:  193:/* ------------------------------------------------------------------ */
+        -:  194:/* 对外接口：算重复率                                                  */
+        -:  195:/* ------------------------------------------------------------------ */
+        -:  196:
+        -:  197:/*
+        -:  198: * 裁掉两串公共的前缀与后缀。
+        -:  199: * a、b 会被更新为中间部分的起点，m、n 更新为中间部分的长度。
+        -:  200: * 返回被裁掉的总字节数。
+        -:  201: *
+        -:  202: * 这一步很值钱：真实的抄袭文本往往是大段照抄，公共前后缀能一口气吃掉
+        -:  203: * 绝大部分内容，剩下的中间部分才需要真正跑 O(m*n/64) 的 LCS。
+        -:  204: */
+function trim_common_affix called 22 returned 100% blocks executed 100%
+       22:  205:static size_t trim_common_affix(const unsigned char **a, size_t *m,
+        -:  206:                                const unsigned char **b, size_t *n)
+        -:  207:{
+       22:  208:    size_t prefix = 0;
+       22:  209:    size_t suffix = 0;
+        -:  210:
+    28768:  211:    while (prefix < *m && prefix < *n && (*a)[prefix] == (*b)[prefix]) {
+branch  0 taken 28760 (fallthrough)
+branch  1 taken 8
+branch  2 taken 28758 (fallthrough)
+branch  3 taken 2
+branch  4 taken 28746
+branch  5 taken 12 (fallthrough)
+    28746:  212:        prefix++;
+        -:  213:    }
+        -:  214:
+        -:  215:    /*
+        -:  216:     * 后缀不能越过前缀已经占用的部分。
+        -:  217:     * cppcheck 的取值流分析会误判下面这个条件恒为假——它假定 prefix 已经吃满
+        -:  218:     * 整串（*m - prefix == 0），但 prefix 只是「公共前缀」的长度，完全可能为 0。
+        -:  219:     * 该分支不是死代码，由单元测试「用例12 公共内容夹在中间」实际覆盖。
+        -:  220:     */
+        -:  221:    /* cppcheck-suppress knownConditionTrueFalse */
+       41:  222:    while (suffix < (*m - prefix) && suffix < (*n - prefix) &&
+branch  0 taken 33 (fallthrough)
+branch  1 taken 8
+branch  2 taken 31 (fallthrough)
+branch  3 taken 2
+       31:  223:           (*a)[*m - 1 - suffix] == (*b)[*n - 1 - suffix]) {
+branch  0 taken 19
+branch  1 taken 12 (fallthrough)
+       19:  224:        suffix++;
+        -:  225:    }
+        -:  226:
+       22:  227:    *a += prefix;
+       22:  228:    *m -= prefix + suffix;
+       22:  229:    *b += prefix;
+       22:  230:    *n -= prefix + suffix;
+       22:  231:    return prefix + suffix;
+        -:  232:}
+        -:  233:
+function check_similarity called 24 returned 100% blocks executed 92%
+       24:  234:CkStatus check_similarity(const unsigned char *orig, size_t orig_len,
+        -:  235:                          const unsigned char *copy, size_t copy_len,
+        -:  236:                          CheckResult *result)
+        -:  237:{
+       24:  238:    const unsigned char *pa = orig;
+       24:  239:    const unsigned char *pb = copy;
+       24:  240:    size_t ma = orig_len;
+       24:  241:    size_t nb = copy_len;
+       24:  242:    size_t common = 0;
+        -:  243:
+       24:  244:    result->orig_len = orig_len;
+       24:  245:    result->copy_len = copy_len;
+       24:  246:    result->common_len = 0;
+       24:  247:    result->rate = 0.0;
+        -:  248:
+        -:  249:    /* 原文为空：没有内容可被抄袭，约定重复率为 0，顺带避免除零 */
+       24:  250:    if (orig_len == 0) {
+branch  0 taken 2 (fallthrough)
+branch  1 taken 22
+        2:  251:        return CK_OK;
+        -:  252:    }
+        -:  253:
+        -:  254:    /* 第一步：裁掉公共前后缀，把待算的规模压小 */
+       22:  255:    common = trim_common_affix(&pa, &ma, &pb, &nb);
+call    0 returned 22
+        -:  256:
+        -:  257:    /* 第二步：只剩中间那段时才真正跑 LCS */
+       22:  258:    if (ma > 0 && nb > 0) {
+branch  0 taken 14 (fallthrough)
+branch  1 taken 8
+branch  2 taken 12 (fallthrough)
+branch  3 taken 2
+       12:  259:        size_t mid = check_lcs(pa, ma, pb, nb);
+call    0 returned 12
+        -:  260:
+       12:  261:        if (mid == SIZE_MAX) {
+branch  0 taken 0 (fallthrough)
+branch  1 taken 12
+    #####:  262:            return CK_ERR_MEM;
+        -:  263:        }
+       12:  264:        common += mid;
+        -:  265:    }
+        -:  266:
+       22:  267:    result->common_len = common;
+       22:  268:    result->rate = (double)common / (double)orig_len;
+       22:  269:    return CK_OK;
+        -:  270:}

@@ -1,0 +1,29 @@
+File 'check.c'
+Lines executed:93.98% of 133
+Branches executed:100.00% of 76
+Taken at least once:92.11% of 76
+Calls executed:100.00% of 4
+Creating 'check.c.gcov'
+
+File 'fileio.c'
+Lines executed:62.50% of 56
+Branches executed:100.00% of 20
+Taken at least once:65.00% of 20
+Calls executed:44.44% of 36
+Creating 'fileio.c.gcov'
+
+File 'common.c'
+Lines executed:100.00% of 10
+Branches executed:100.00% of 8
+Taken at least once:100.00% of 8
+No calls
+Creating 'common.c.gcov'
+
+File 'main.c'
+Lines executed:88.00% of 50
+Branches executed:100.00% of 14
+Taken at least once:78.57% of 14
+Calls executed:64.29% of 14
+Creating 'main.c.gcov'
+
+Lines executed:85.94% of 249
