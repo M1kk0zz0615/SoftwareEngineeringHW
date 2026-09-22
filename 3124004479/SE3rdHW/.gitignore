@@ -1,0 +1,17 @@
+# 编译产物
+bin/
+obj/
+*.exe
+*.pdb
+*.dll
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+
+# 程序运行时生成的文件（题目、答案、判题结果都在当前目录生成）
+# 加开头的斜线表示只忽略仓库根目录下的这几个文件，samples/ 里的示例文件要保留
+/Exercises.txt
+/Answers.txt
+/Grade.txt

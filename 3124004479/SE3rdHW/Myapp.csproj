@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    备用工程文件：装了 Visual Studio 或 .NET SDK 之后，
+    可以直接用 VS 打开本文件，或执行 dotnet build / dotnet run 编译运行。
+    没有装也不要紧，直接跑 build.bat 用 Windows 自带的 csc.exe 编译即可。
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <AssemblyName>Myapp</AssemblyName>
+    <RootNamespace>ArithGenerator</RootNamespace>
+    <!-- 源码刻意只使用 C# 5 的语法，保证旧版 csc.exe 也能编译，这里锁住语言版本防止误用新语法 -->
+    <LangVersion>5</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+
+</Project>
