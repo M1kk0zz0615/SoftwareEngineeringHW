@@ -18,3 +18,7 @@ obj/
 /Exercises.txt
 /Answers.txt
 /Grade.txt
+
+# 结对项目博客的正文发布在博客园（作业要求的是提交博客文章），
+# 不作为仓库内容提交；本地保留一份草稿便于修改与发布
+/blog.md
