@@ -1,7 +1,7 @@
 # 软工作业：小学四则运算题目生成器（结对项目）
 
 > 作业仓库：`(https://github.com/M1kk0zz0615/SoftwareEngineeringHW/tree/main/3124004479/SE3rdHW)`
-> 学号 3124004479，姓名 刘俊宁；学号 【填写结对同学学号】，姓名 【填写结对同学姓名】
+> 学号 3124004479，姓名 刘俊宁；学号 3124004466，姓名 段旷卓
 > 课程 [计科24级78班 - 软件工程](https://edu.cnblogs.com/campus/gdgy/Class78-Grade2024-CS/)
 
 ---
