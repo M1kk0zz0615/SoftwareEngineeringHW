@@ -173,16 +173,31 @@ namespace ArithGenerator
                 _pos++;
             }
 
-            string numeratorText = ReadDigits();
-            if (numeratorText.Length == 0)
+            // 带分数：整数部分后面必须紧跟 "分子/分母"
+            if (hasQuote)
             {
-                if (hasQuote)
+                string numeratorText = ReadDigits();
+                if (numeratorText.Length == 0)
                 {
                     throw new FormatException("带分数缺少分子。");
                 }
-                return new Fraction(BigInteger.Parse(wholeText));
+                if (_pos >= _text.Length || _text[_pos] != '/')
+                {
+                    throw new FormatException("带分数缺少分母。");
+                }
+                _pos++;
+                string denominatorText = ReadDigits();
+                if (denominatorText.Length == 0)
+                {
+                    throw new FormatException("带分数缺少分母。");
+                }
+                // 2'3/8 = 2 + 3/8
+                return new Fraction(BigInteger.Parse(wholeText))
+                       + new Fraction(BigInteger.Parse(numeratorText), BigInteger.Parse(denominatorText));
             }
 
+            // 没有撇号：可能是 "a/b" 形式的分数，也可能只是一个整数。
+            // 注意必须在这里判断 '/'，否则 "6 ÷ 4/9" 会被误读成 "6 ÷ 4 ÷ 9"。
             if (_pos < _text.Length && _text[_pos] == '/')
             {
                 _pos++;
@@ -191,21 +206,10 @@ namespace ArithGenerator
                 {
                     throw new FormatException("分数缺少分母。");
                 }
-                Fraction fractionPart = new Fraction(BigInteger.Parse(numeratorText),
-                                                     BigInteger.Parse(denominatorText));
-                if (hasQuote)
-                {
-                    // 带分数 2'3/8 = 2 + 3/8
-                    return new Fraction(BigInteger.Parse(wholeText)) + fractionPart;
-                }
-                return fractionPart;
+                return new Fraction(BigInteger.Parse(wholeText), BigInteger.Parse(denominatorText));
             }
 
-            if (hasQuote)
-            {
-                throw new FormatException("带分数缺少分母。");
-            }
-            throw new FormatException("数值后面出现了意外的字符。");
+            return new Fraction(BigInteger.Parse(wholeText));
         }
 
         /// <summary>读取连续的阿拉伯数字，读不到时返回空串。</summary>
