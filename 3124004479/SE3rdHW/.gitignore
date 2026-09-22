@@ -4,6 +4,9 @@ obj/
 *.exe
 *.pdb
 *.dll
+# 例外：随仓库提供已编译好的可执行文件，老师无需编译即可直接运行
+#（与前两次作业提供 main.exe 的做法一致）
+!/Myapp.exe
 
 # Visual Studio
 .vs/

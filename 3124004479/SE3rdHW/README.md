@@ -1,9 +1,49 @@
-# 小学四则运算题目生成器 Myapp
+# 小学四则运算题目生成器 Myapp（软件工程 结对项目）
 
-软件工程第三次作业（结对项目）：一个自动生成小学四则运算题目的命令行程序，支持题目生成、
-答案计算与作答判定三种能力。
+> 学号：3124004479　姓名：刘俊宁　（结对同学：【填写姓名】/【填写学号】）
+> 课程：[计科24级78班 - 软件工程](https://edu.cnblogs.com/campus/gdgy/Class78-Grade2024-CS/)
 
-## 一、运行环境
+自动生成小学四则运算题目的命令行程序：用 `-n`、`-r` 出题并算出答案，
+用 `-e`、`-a` 判定作答对错。C# 实现，8 个源文件约 2200 行，内置 66 项自检。
+
+## 一、怎么用
+
+仓库里已经带了编译好的 **Myapp.exe**，可以直接运行；要重新编译见第三节。
+
+```bat
+:: 生成 10 道数值范围 10 以内的题目，写出 Exercises.txt 与 Answers.txt
+Myapp.exe -n 10 -r 10
+
+:: 判定答案对错，写出 Grade.txt
+Myapp.exe -e Exercises.txt -a Answers.txt
+
+:: 仓库自带一组手工示例，可以直接试判题
+Myapp.exe -e samples\Exercises.txt -a samples\Answers_wrong.txt
+
+:: 运行内置自检（66 项断言，全通过返回退出码 0）
+Myapp.exe --selftest
+```
+
+`-n 6 -r 10` 的一次真实输出（左为 Exercises.txt，右为 Answers.txt）：
+
+```
+Exercises.txt                 Answers.txt
+7 + 3 =                       10
+8 + 5/9 − 2/3 =               7'8/9
+8 ÷ (9 − 0 + 2) =             8/11
+7 × 8 ÷ (8 × 8) =             7/8
+1 + 7 − 2 + 5 =               11
+2/5 × (1/3 − 0) =             2/15
+```
+
+判题结果 `Grade.txt` 的格式：
+
+```
+Correct: 5 (1, 3, 5, 7, 9)
+Wrong: 5 (2, 4, 6, 8, 10)
+```
+
+## 二、运行环境
 
 | 项目 | 说明 |
 | --- | --- |
@@ -11,7 +51,7 @@
 | 编译方式一 | Windows 自带的 C# 编译器 `csc.exe`（.NET Framework 4.x），**无需安装任何额外软件** |
 | 编译方式二 | Visual Studio 或 .NET SDK（打开 `Myapp.csproj`） |
 
-## 二、编译
+## 三、编译
 
 ```bat
 :: 方式一：双击或命令行执行（推荐，Windows 自带编译器）
@@ -26,53 +66,9 @@ build.bat
 dotnet build
 ```
 
-编译成功后当前目录下会生成 **Myapp.exe**。
+编译成功后项目根目录下会生成 **Myapp.exe**。
 
-## 三、运行说明
-
-### 1. 生成题目与答案
-
-```bat
-Myapp.exe -n 10 -r 10
-```
-
-在**执行程序的当前目录**写出两个文件：
-
-- `Exercises.txt`：题目，每行一道，格式为 `算术表达式 = `（运算符与等号前后各一个空格）
-- `Answers.txt`：答案，每行一个，与题目逐行对应
-
-`-n 6 -r 10` 的一次真实输出（左为 Exercises.txt，右为 Answers.txt）：
-
-```
-Exercises.txt                 Answers.txt
-7 + 3 =                       10
-8 + 5/9 − 2/3 =               7'8/9
-8 ÷ (9 − 0 + 2) =             8/11
-7 × 8 ÷ (8 × 8) =             7/8
-1 + 7 − 2 + 5 =               11
-2/5 × (1/3 − 0) =             2/15
-```
-
-### 2. 判定答案对错
-
-```bat
-Myapp.exe -e Exercises.txt -a Answers.txt
-```
-
-在**执行程序的当前目录**写出 `Grade.txt`：
-
-```
-Correct: 5 (1, 3, 5, 7, 9)
-Wrong: 5 (2, 4, 6, 8, 10)
-```
-
-仓库里的 `samples/` 目录自带一组示例，可以直接跑：
-
-```bat
-Myapp.exe -e samples\Exercises.txt -a samples\Answers_wrong.txt
-```
-
-### 3. 参数说明
+## 四、参数说明
 
 | 参数 | 含义 |
 | --- | --- |
@@ -85,7 +81,7 @@ Myapp.exe -e samples\Exercises.txt -a samples\Answers_wrong.txt
 
 参数取值支持 `-n 10` 与 `-n=10` 两种写法。参数不合法时返回退出码 1 并打印帮助信息。
 
-## 四、需求对照
+## 五、需求对照
 
 | 需求 | 实现位置 |
 | --- | --- |
@@ -96,10 +92,10 @@ Myapp.exe -e samples\Exercises.txt -a samples\Answers_wrong.txt
 | 5. `e1 ÷ e2` 的结果是真分数（即 `0 < e1 < e2`） | `ProblemGenerator.MakeNode` |
 | 6. 每道题运算符个数不超过 3 | `ProblemGenerator.MaxOperatorCount` |
 | 7. 一次运行内题目不重复 | `Expression.ToCanonical` + 哈希表查重 |
-| 8. 支持一万道题目的生成 | 见下方性能数据 |
+| 8. 支持一万道题目的生成 | 见第七节性能数据 |
 | 9. 判题并输出 Grade.txt | `Grader.cs` |
 
-## 五、关键设计
+## 六、关键设计
 
 ### 1. 分数用 `BigInteger` 精确表示（`Fraction.cs`）
 
@@ -143,18 +139,19 @@ Myapp.exe -e samples\Exercises.txt -a samples\Answers_wrong.txt
 - 数值 0 与 1 的出现概率刻意压低，且一道题里 0/1 操作数超过 2 个就重新出题，
   避免 `1 × 1 × 1 × 2` 这类没有意义的题目。
 
-## 六、性能
+## 七、性能
 
 `-n 10000 -r 10` 实测（生成 + 写文件 + 判题的耗时由程序自行打印）：
 
 | 阶段 | 耗时 |
 | --- | --- |
-| 生成 10000 道互不重复的题目并写出两个文件 | 约 60 ~ 100 毫秒 |
-| 判题 10000 道并写出 Grade.txt | 约 30 毫秒 |
+| 生成 10000 道互不重复的题目并写出两个文件 | **68.9 ms** |
+| 判题 10000 道并写出 Grade.txt | **30.7 ms** |
 
 去重使用 `HashSet<string>`，规范串一次算出、复用，因此题目数量增长对耗时的影响接近线性。
+详细的测量方法、原始数据与改进思路见 [`docs/profiling/README.md`](docs/profiling/README.md)。
 
-## 七、测试
+## 八、测试
 
 ```bat
 Myapp.exe --selftest
@@ -164,13 +161,17 @@ Myapp.exe --selftest
 表达式求值与优先级、括号渲染、查重规范形式、生成题目的三条约束、一万道题的规模与判题闭环、
 `-r 1` / `-r 2` 等极端范围、判题的对错统计与容错。全部通过时返回退出码 0，有失败返回 1。
 
-## 八、项目结构
+测试用例清单与"为什么确信程序是正确的"详见 [`blog.md`](blog.md) 第五节。
+
+## 九、项目结构
 
 ```
 Myapp.csproj          备用工程文件（Visual Studio / .NET SDK）
 build.bat             编译脚本（Windows 自带 csc.exe）
 build.sh              编译脚本（Git Bash）
 README.md             本文件
+blog.md               结对项目博客（含 PSP 表格、效能分析、测试运行）
+Myapp.exe             已编译好的可执行文件
 src/
   Fraction.cs         有理数（分数）类：约分、四则运算、比较、格式化与解析
   Expression.cs       表达式树：求值、括号渲染、查重用的规范形式
@@ -181,9 +182,10 @@ src/
   Program.cs          程序入口、帮助信息、运行模式分派
   SelfTest.cs         内置自检（--selftest）
 samples/              手工示例：10 道题目 + 全对答案 + 错 5 题的答案
+docs/profiling/       性能分析的说明、原始数据与图
 ```
 
-## 九、几点实现取舍
+## 十、几点实现取舍
 
 1. **带分数**：作业把 `1'1/2` 也列在真分数的例子里，因此题目中的分数允许是假分数，
    显示时统一化成带分数（如 `3/2` 显示为 `1'1/2`）；但需求 5 说的"除法的结果应是真分数"

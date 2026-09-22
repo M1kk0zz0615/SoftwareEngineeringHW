@@ -1,13 +1,8 @@
-# 结对项目：小学四则运算题目生成器 Myapp
+# 软工作业：小学四则运算题目生成器（结对项目）
 
-> 把本文件内容复制到博客园即可（`.md` 直接粘进 Markdown 编辑器）。
-> 提交前请替换下面两处占位信息，并根据实际情况改写第六节的结对感受。
-
-| 项目 | 内容 |
-| --- | --- |
-| 姓名 1 / 学号 1 | 【填写：姓名】 / 【填写：学号】 |
-| 姓名 2 / 学号 2 | 【填写：姓名】 / 【填写：学号】 |
-| GitHub 项目地址 | 【填写：https://github.com/用户名/仓库名】 |
+> 作业仓库：`(https://github.com/M1kk0zz0615/SoftwareEngineeringHW/tree/main/3124004479/SE3rdHW)`
+> 学号 3124004479，姓名 刘俊宁；学号 【填写结对同学学号】，姓名 【填写结对同学姓名】
+> 课程 [计科24级78班 - 软件工程](https://edu.cnblogs.com/campus/gdgy/Class78-Grade2024-CS/)
 
 ---
 
@@ -344,10 +339,10 @@ public static bool TrySolve(string exerciseLine, out Fraction answer)
 
 ### 4.2 实测数据
 
-![性能分析图](docs/perf-analysis.svg)
+![性能分析图](docs/profiling/perf-analysis.svg)
 
-> 【发布到博客园时】把 `docs/perf-analysis.svg` 用浏览器打开、截图上传，替换掉上面这行即可。
-> 若博客园支持 SVG 直传，也可以直接上传该文件。
+> 【发布到博客园时】把 `docs/profiling/perf-analysis.svg` 用浏览器打开、截图上传，替换掉上面这行即可。
+> 若博客园支持 SVG 直传，也可以直接上传该文件。测量方法与原始数据见 `docs/profiling/README.md`。
 
 | 阶段 | 耗时 | 占比 / 单次成本 |
 | --- | --- | --- |
